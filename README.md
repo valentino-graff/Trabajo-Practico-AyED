@@ -16,7 +16,7 @@ Trabajo Práctico grupal de Algoritmos y Estructuras de Datos (UTN FRBA), unidad
 | Programa | Responsable |
 |---|---|
 | `normalizacion.cpp` | Valentino Graff |
-| `ventas.cpp` | (completar) |
+| `ventas.cpp` | (Santiago Isoldi) |
 | `cierre.cpp` | (Perseo Real) |
 | `resumen.cpp` | (completar) |
 
