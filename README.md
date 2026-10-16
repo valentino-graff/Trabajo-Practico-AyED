@@ -113,7 +113,14 @@ Las claves no se guardan tal cual en `mozos.dat`. A cada carácter se le suma `K
 
 ### `ventas.cpp`
 
-COMPLETAR
+Solicita la fecha y crea el nombre del archivo donde se guardarán las comandas del día.
+Verifica el ingreso del mozo, buscando su número de identificación y comprobando su contraseña encriptada.
+Busca el producto en el inventario y muestra su descripción y precio.
+Valida la cantidad solicitada, comprobando que sea mayor que cero y que haya suficiente stock.
+Calcula el total de la venta y la comisión del mozo, que corresponde al 10 % del importe vendido.
+Registra la venta en un archivo del día y descuenta del inventario las unidades vendidas.
+Ordena las comandas por número de mozo cuando se termina de cargar las ventas.
+Además, utiliza archivos binarios (.dat) para almacenar la información de los mozos, los productos y las ventas.
 
 ### `cierre.cpp`
 
