@@ -128,7 +128,7 @@ Finalmente, crea un archivo binario semanal, guarda todas las comandas ordenadas
 
 ### `resumen.cpp`
 
-(completar)
+Pide el número de semana y el mes, arma el nombre `comandas_semana_sX-mm.dat` y lo abre en modo lectura (`"rb"`). Si no existe, avisa que hay que correr primero `cierre` y termina. Como `cierre` deja el archivo semanal ordenado por idMozo, todas las ventas de un mismo mozo están juntas, así que se recorre con **corte de control**: se hace una lectura adelantada, el ciclo externo guarda el mozo actual y pone en 0 sus acumuladores, y el ciclo interno suma cantidades y comisiones mientras haya datos y el mozo sea el mismo. Cuando cambia el mozo (o se termina el archivo) se muestran sus totales y se suman al total del buffet. Así el archivo se recorre una sola vez, sin cargarlo en memoria. El nombre de cada mozo se busca en `mozos.dat` con **acceso directo** (`fseek` a `(idMozo - 1) * sizeof(Mozo)`), porque los ids son 1, 2, 3... en el orden en que están grabados. Al final muestra el total de productos vendidos por el buffet.
 
 ## Casos raros contemplados
 
@@ -140,7 +140,7 @@ Finalmente, crea un archivo binario semanal, guarda todas las comandas ordenadas
 | Sin stock | `ventas` rechaza la venta. `normalizacion` avisa y deja el stock en 0 |
 | Cantidad menor o igual a 0 | `ventas` la rechaza |
 | Planilla del día sin crear | `ventas` la crea al agregar la primera venta |
-| Último mozo del cierre | (completar) |
+| Último mozo del cierre | `resumen` lo muestra igual: el ciclo interno del corte de control también termina al llegar al fin del archivo |
 
 ## Supuestos
 - Los mozos se identifican por nombre exacto: "Juan Perez" y "juan perez" serían dos mozos distintos.
