@@ -1,23 +1,25 @@
+# TP Integrador — Buffet Albert Einstein
+
 Trabajo Práctico grupal de Algoritmos y Estructuras de Datos (UTN FRBA), unidad de archivos binarios en C/C++.
 
-**Grupo: B**
+**Grupo:** B
 
 **Integrantes:**
 
-| Nombre             | Usuario de GitHub |
-
-| Valentino Graff    | valentino_graff   |
-| (completar)        | (completar)       |
-| (completar)        | (completar)       |
-| (completar)        | (completar)       |
+| Nombre | Usuario de GitHub |
+|---|---|
+| Valentino Graff | valentino-graff |
+| (completar) | (completar) |
+| (completar) | (completar) |
+| (completar) | (completar) |
 
 ## Quién hizo cada parte
 
 | Programa | Responsable |
 |---|---|
 | `normalizacion.cpp` | Valentino Graff |
-| `ventas.cpp` | (Santiago Isoldi) |
-| `cierre.cpp` | (Perseo Real) |
+| `ventas.cpp` | Santiago Isoldi |
+| `cierre.cpp` | Perseo Real |
 | `resumen.cpp` | (completar) |
 
 ## Estructura del repo
@@ -40,7 +42,7 @@ Cada programa tiene su propio `main`. No hay `main.cpp`.
 
 ## Cómo compilar y correr
 
-Los programas leen y escriben los `.dat` en la **carpeta donde se ejecutan**. Los archivos de `datos/` son los originales y no se modifican: se copian a la raíz y se trabaja sobre las copias.
+Los programas leen y escriben los `.dat` en la **carpeta donde se ejecutan**. Los archivos de `datos/` son los originales y no se modifican: se copian a la carpeta de ejecución y se trabaja sobre las copias.
 
 ```
 cp datos/comandas_historicas.dat datos/inventario.dat .
@@ -53,7 +55,9 @@ copy datos\comandas_historicas.dat .
 copy datos\inventario.dat .
 ```
 
-Compilación (siempre desde la raíz del repo):
+`normalizacion` copia `inventario.dat` y `comandas_historicas.dat` desde `datos/` si no los encuentra en la carpeta donde se ejecuta, así que ese paso de copiar a mano es opcional para ese programa. Los originales de `datos/` nunca se modifican. El resto de los programas no copia nada: necesitan `mozos.dat` e `inventario.dat` en la carpeta de ejecución.
+
+Compilación (desde la raíz del repo):
 
 ```
 g++ -O2 -o normalizacion normalizacion.cpp
@@ -75,7 +79,7 @@ Cada programa deja los archivos que usa el siguiente.
 
 **Importante:**
 
-- `normalizacion` se corre **una sola vez y primero**. Si se corre de nuevo, descuenta el stock otra vez y pisa `mozos.dat` y las planillas de los días. Para repetir una prueba, volver a copiar `inventario.dat` desde `datos/` y volver a correr.
+- `normalizacion` se corre **una sola vez y primero**. Si se vuelve a correr, descuenta el stock otra vez y pisa `mozos.dat` y las planillas de los días. Para repetir una prueba, hay que volver a dejar en la carpeta de ejecución una copia limpia de `inventario.dat` (la de `datos/`).
 - Los cuatro programas se ejecutan **desde la misma carpeta**, para que se encuentren los archivos entre sí.
 
 ### Datos de prueba para `ventas`
@@ -96,20 +100,11 @@ Todos los registros que van a disco son de tamaño fijo (`char[N]`, nunca `strin
 
 ### Claves: corrimiento con `K = 5`
 
-Las claves no se guardan tal cual en `mozos.dat`. A cada carácter se le suma `K = 5`. Ejemplo: la clave `"1"` (código 49) se guarda como `'6'` (código 54).
-
-- **Verificación del login:** al texto que escribe el mozo se le aplica la misma cuenta y se compara con lo guardado. Nunca hace falta desencriptar.
-- **Por qué se puede deshacer:** sumar `K` se revierte restando `K`, y cada carácter distinto da un resultado distinto, así que no se pierde información. Por eso no sirve "dividir por dos": 16 y 17 darían lo mismo.
-- **Límite:** es un corrimiento simple, suficiente para que la clave no se lea a simple vista, pero no es seguridad real.
-- `K` y la cuenta tienen que ser idénticos en `normalizacion.cpp` y en `ventas.cpp`.
-
+Las claves no se guardan tal cual en mozos.dat. A cada carácter se le suma 5.
+  
 ### `normalizacion.cpp`
 
-- Mozos: Lista enlazada. Cada mozo se busca por nombre (búsqueda secuencial, porque no hay orden). Si no está, se agrega al final con el id siguiente. Cada venta suma su comisión al TotalComision del mozo.
-- Planillas por día: Lista enlazada de días, y dentro de cada día una lista de comandas. Los días se buscan en forma secuencial porque aparecen sin orden.
-- Orden por mozo: cada comanda se inserta ya ordenada por idMozo. Con <= queda detrás de las anteriores del mismo mozo, así que se conserva el orden de carga.
-- Inventario: Se usa búsqueda binaria porque está ordenado por código. Se carga en un array del tamaño exacto (tamaño del archivo / sizeof(Producto)).
-- Stock: se descuenta en memoria y se actualiza el mismo inventario.dat, sin recrearlo.
+El programa carga el historial y el inventario completos en arrays dinámicos, con un tamaño igual al del archivo dividido por el tamaño del registro, por lo que no hay máximos fijos. Recorre las ventas y arma la lista de mozos: cada mozo se busca por nombre con búsqueda secuencial (no hay orden que aprovechar) y, si no está, se agrega con el id siguiente (1, 2, 3...) y su clave inicial, que es su id como texto encriptada con K = 5. A cada mozo se le va sumando la comisión de sus ventas. También arma la lista de fechas distintas, con la misma búsqueda secuencial. Para cada fecha junta sus comandas cambiando el nombre del mozo por su id, las ordena por idMozo con ordenamiento burbuja (el > estricto no mezcla las comandas de un mismo mozo) y las guarda en comandas_dd-mm-aaaa.dat, igual que mozos.dat, en la carpeta donde se ejecuta el programa (junto a los programas si se corre desde la raíz del repositorio). Para el stock, como el inventario está ordenado por código pero tiene huecos y no se puede acceder por posición, usa búsqueda binaria: descuenta lo vendido en memoria y después actualiza el mismo inventario.dat con fseek y fwrite registro por registro, sin recrearlo. Si un producto no existe lo informa, y si no alcanza el stock lo informa y lo deja en 0. Al terminar libera la memoria con delete[].
 
 ### `ventas.cpp`
 
@@ -124,14 +119,25 @@ Además, utiliza archivos binarios (.dat) para almacenar la información de los 
 
 ### `cierre.cpp`
 
-COMPLETAR
+(completar)
 
 ### `resumen.cpp`
 
-COMPLETAR
+(completar)
+
+## Casos raros contemplados
+
+| Caso | Qué hace |
+|---|---|
+| Mozo inexistente | `ventas` avisa y no deja seguir con esa venta |
+| Clave incorrecta | `ventas` avisa y no deja cargar |
+| Producto inexistente | `ventas` avisa. `normalizacion` lo informa y sigue |
+| Sin stock | `ventas` rechaza la venta. `normalizacion` avisa y deja el stock en 0 |
+| Cantidad menor o igual a 0 | `ventas` la rechaza |
+| Planilla del día sin crear | `ventas` la crea al agregar la primera venta |
+| Último mozo del cierre | (completar) |
 
 ## Supuestos
-
 - Los mozos se identifican por nombre exacto: "Juan Perez" y "juan perez" serían dos mozos distintos.
 - La comisión de las ventas históricas se toma tal cual viene del archivo.
 - Los ids de mozo son 1, 2, 3... sin saltos, en orden de aparición en el historial.
