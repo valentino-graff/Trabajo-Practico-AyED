@@ -119,7 +119,12 @@ Además, utiliza archivos binarios (.dat) para almacenar la información de los 
 
 ### `cierre.cpp`
 
-(completar)
+El archivo cierre.cpp sirve para realizar el cierre semanal de las ventas del Buffet Albert Einstein.
+Primero, incluye las bibliotecas necesarias para trabajar con archivos, textos, vectores y ordenamientos. Después, define la estructura Comanda, que almacena el identificador del mozo, el código del producto, la cantidad vendida y la comisión.
+Luego, la función fechaValida() verifica que las fechas tengan el formato correcto y que el día y el mes estén dentro de los rangos permitidos.
+En la función principal main(), el programa solicita el número de semana, el mes y la cantidad de planillas diarias. Valida esos datos y pide las fechas de las planillas, evitando ingresar dos veces la misma fecha.
+Después, abre cada archivo diario, lee sus comandas y las guarda en un vector. Una vez reunidas todas, utiliza sort() para ordenarlas por identificador de mozo.
+Finalmente, crea un archivo binario semanal, guarda todas las comandas ordenadas y muestra un mensaje indicando que el cierre terminó correctamente, junto con la cantidad de planillas procesadas y comandas guardadas.
 
 ### `resumen.cpp`
 
