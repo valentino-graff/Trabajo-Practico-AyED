@@ -9,9 +9,9 @@ Trabajo Práctico grupal de Algoritmos y Estructuras de Datos (UTN FRBA), unidad
 | Nombre | Usuario de GitHub |
 |---|---|
 | Valentino Graff | valentino-graff |
-| (completar) | (completar) |
-| (completar) | (completar) |
-| (completar) | (completar) |
+| Aylen Cortez | AyluCortez |
+| Perseo Reak| Perseo |
+| Santiago Isoldi | pocho1212 |
 
 ## Quién hizo cada parte
 
@@ -20,7 +20,7 @@ Trabajo Práctico grupal de Algoritmos y Estructuras de Datos (UTN FRBA), unidad
 | `normalizacion.cpp` | Valentino Graff |
 | `ventas.cpp` | Santiago Isoldi |
 | `cierre.cpp` | Perseo Real |
-| `resumen.cpp` | (completar) |
+| `resumen.cpp` | Aylen Cortez |
 
 ## Estructura del repo
 
