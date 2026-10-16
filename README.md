@@ -17,7 +17,7 @@ Trabajo Práctico grupal de Algoritmos y Estructuras de Datos (UTN FRBA), unidad
 |---|---|
 | `normalizacion.cpp` | Valentino Graff |
 | `ventas.cpp` | (completar) |
-| `cierre.cpp` | (completar) |
+| `cierre.cpp` | (Perseo Real) |
 | `resumen.cpp` | (completar) |
 
 ## Estructura del repo
