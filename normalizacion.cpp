@@ -45,6 +45,25 @@ void codificar(char clave[]) {
         clave[i] = clave[i] + K;
 }
 
+// Pasa un entero positivo a texto, digito por digito
+void numeroATexto(int numero, char texto[]) {
+    char invertido[20];
+    int cant = 0;
+
+    if (numero == 0)
+        invertido[cant++] = '0';
+
+    while (numero > 0) {
+        invertido[cant++] = '0' + numero % 10;  // ultimo digito
+        numero = numero / 10;
+    }
+
+    // Los digitos salieron al reves, se copian dados vuelta
+    for (int i = 0; i < cant; i++)
+        texto[i] = invertido[cant - 1 - i];
+    texto[cant] = '\0';
+}
+
 // Si el archivo no esta en esta carpeta, lo copia desde datos/ o ../datos/
 bool prepararArchivo(const char nombre[]) {
     FILE *f = fopen(nombre, "rb");
@@ -185,7 +204,7 @@ int main() {
             memset(&mozos[posMozo], 0, sizeof(Mozo));
             mozos[posMozo].idMozo = cantMozos + 1;
             strcpy(mozos[posMozo].nombre, ventas[i].nombreMozo);
-            sprintf(mozos[posMozo].password, "%d", mozos[posMozo].idMozo);
+            numeroATexto(mozos[posMozo].idMozo, mozos[posMozo].password);
             codificar(mozos[posMozo].password);
             cantMozos++;
         }
