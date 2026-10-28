@@ -1,14 +1,11 @@
-#include <cstdio>
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <iostream>
-#include <vector>
-#include <algorithm>
+#include <cstdio>
 #include <cstring>
-#include <string>
-#include <limits>
 
 using namespace std;
 
-// Debe coincidir exactamente con la estructura utilizada por ventas.cpp.
 struct Comanda {
     int idMozo;
     int codigoProducto;
@@ -16,129 +13,164 @@ struct Comanda {
     float comision;
 };
 
-bool fechaValida(const string& fecha) {
-    // Formato esperado: DD-MM-AAAA (10 caracteres).
-    if (fecha.size() != 10 || fecha[2] != '-' || fecha[5] != '-') {
-        return false;
+int leerComanda(FILE* archivo, Comanda& comanda) {
+    return fread(&comanda, sizeof(Comanda), 1, archivo) == 1;
+}
+
+// Aparea dos archivos previamente ordenados por idMozo.
+int aparearArchivos(const char* archivoA, const char* archivoB,
+                    const char* archivoSalida) {
+    FILE* a = fopen(archivoA, "rb");
+    if (a == NULL) {
+        cout << "No se pudo abrir " << archivoA << endl;
+        return 0;
     }
 
-    for (int i = 0; i < 10; ++i) {
-        if (i == 2 || i == 5) continue;
-        if (fecha[i] < '0' || fecha[i] > '9') return false;
+    FILE* b = fopen(archivoB, "rb");
+    if (b == NULL) {
+        cout << "No se pudo abrir " << archivoB << endl;
+        fclose(a);
+        return 0;
     }
 
-    int dia = (fecha[0] - '0') * 10 + (fecha[1] - '0');
-    int mes = (fecha[3] - '0') * 10 + (fecha[4] - '0');
+    FILE* salida = fopen(archivoSalida, "wb");
+    if (salida == NULL) {
+        cout << "No se pudo crear " << archivoSalida << endl;
+        fclose(a);
+        fclose(b);
+        return 0;
+    }
 
-    return dia >= 1 && dia <= 31 && mes >= 1 && mes <= 12;
+    Comanda ca, cb;
+    int hayA = leerComanda(a, ca);
+    int hayB = leerComanda(b, cb);
+    int correcto = 1;
+
+    while (hayA && hayB && correcto) {
+        if (ca.idMozo <= cb.idMozo) {
+            correcto = fwrite(&ca, sizeof(Comanda), 1, salida) == 1;
+            hayA = leerComanda(a, ca);
+        } else {
+            correcto = fwrite(&cb, sizeof(Comanda), 1, salida) == 1;
+            hayB = leerComanda(b, cb);
+        }
+    }
+
+    while (hayA && correcto) {
+        correcto = fwrite(&ca, sizeof(Comanda), 1, salida) == 1;
+        hayA = leerComanda(a, ca);
+    }
+
+    while (hayB && correcto) {
+        correcto = fwrite(&cb, sizeof(Comanda), 1, salida) == 1;
+        hayB = leerComanda(b, cb);
+    }
+
+    fclose(a);
+    fclose(b);
+    fclose(salida);
+
+    if (!correcto) {
+        cout << "Error al escribir " << archivoSalida << endl;
+        return 0;
+    }
+    return 1;
+}
+
+int copiarArchivo(const char* origen, const char* destino) {
+    FILE* entrada = fopen(origen, "rb");
+    if (entrada == NULL) {
+        cout << "No se pudo abrir " << origen << endl;
+        return 0;
+    }
+
+    FILE* salida = fopen(destino, "wb");
+    if (salida == NULL) {
+        cout << "No se pudo crear " << destino << endl;
+        fclose(entrada);
+        return 0;
+    }
+
+    Comanda c;
+    int correcto = 1;
+    while (fread(&c, sizeof(Comanda), 1, entrada) == 1) {
+        if (fwrite(&c, sizeof(Comanda), 1, salida) != 1) {
+            correcto = 0;
+            break;
+        }
+    }
+
+    fclose(entrada);
+    fclose(salida);
+    return correcto;
 }
 
 int main() {
-    int numeroSemana, mes, cantidadDias;
+    int semana, mes;
+    cout << "Ingrese numero de semana (1 a 5): ";
+    cin >> semana;
+    cout << "Ingrese mes (1 a 12): ";
+    cin >> mes;
 
-    cout << "=== CIERRE SEMANAL - BUFFET ALBERT EINSTEIN ===\n";
-    cout << "Numero de semana (X para comandas_semana_sX-mm.dat): ";
-    if (!(cin >> numeroSemana) || numeroSemana < 1) {
-        cout << "Error: el numero de semana debe ser un entero positivo.\n";
+    if (semana < 1 || semana > 5 || mes < 1 || mes > 12) {
+        cout << "Semana o mes invalido." << endl;
         return 1;
     }
 
-    cout << "Mes de la semana (1-12): ";
-    if (!(cin >> mes) || mes < 1 || mes > 12) {
-        cout << "Error: el mes debe estar entre 1 y 12.\n";
+    char nombreSalida[50];
+    sprintf(nombreSalida, "comandas_semana_s%d-%02d.dat", semana, mes);
+
+    char fecha[11];
+    char archivoAnterior[50];
+    char archivoActual[50];
+
+    cout << "Ingrese la fecha del primer dia (DD-MM-AAAA): ";
+    cin >> fecha;
+    strcpy(archivoAnterior, "comandas_");
+    strcat(archivoAnterior, fecha);
+    strcat(archivoAnterior, ".dat");
+
+    const char* auxiliar = "comandas_auxiliar.dat";
+    const char* resultado = "comandas_resultado.dat";
+
+    if (!copiarArchivo(archivoAnterior, auxiliar)) {
         return 1;
     }
 
-    cout << "Cuantas planillas diarias queres juntar? (1-7): ";
-    if (!(cin >> cantidadDias) || cantidadDias < 1 || cantidadDias > 7) {
-        cout << "Error: la cantidad de planillas debe estar entre 1 y 7.\n";
-        return 1;
-    }
-
-    vector<Comanda> comandasSemanales;
-    vector<string> fechasIngresadas;
-
-    for (int i = 0; i < cantidadDias; ++i) {
-        string fecha;
-        cout << "Fecha de la planilla " << (i + 1)
-             << " (DD-MM-AAAA): ";
+    // Se aparean las siete planillas, una por una.
+    for (int dia = 2; dia <= 7; dia++) {
+        cout << "Ingrese la fecha del dia " << dia << " (DD-MM-AAAA): ";
         cin >> fecha;
 
-        if (!fechaValida(fecha)) {
-            cout << "Error: fecha invalida. Usa el formato DD-MM-AAAA.\n";
+        strcpy(archivoActual, "comandas_");
+        strcat(archivoActual, fecha);
+        strcat(archivoActual, ".dat");
+
+        if (!aparearArchivos(auxiliar, archivoActual, resultado)) {
+            remove(auxiliar);
+            remove(resultado);
             return 1;
         }
 
-        // Evita procesar dos veces el mismo archivo.
-        for (size_t j = 0; j < fechasIngresadas.size(); ++j) {
-            if (fechasIngresadas[j] == fecha) {
-                cout << "Error: esa fecha ya fue ingresada.\n";
-                return 1;
-            }
-        }
-        fechasIngresadas.push_back(fecha);
-
-        char nombreArchivo[64];
-        snprintf(nombreArchivo, sizeof(nombreArchivo),
-                 "comandas_%s.dat", fecha.c_str());
-
-        FILE* archivoDia = fopen(nombreArchivo, "rb");
-        if (archivoDia == NULL) {
-            cout << "Error: no se pudo abrir " << nombreArchivo
-                 << ". Verifica que exista en la carpeta de trabajo.\n";
+        if (remove(auxiliar) != 0) {
+            cout << "No se pudo eliminar el auxiliar anterior." << endl;
+            remove(resultado);
             return 1;
         }
 
-        Comanda comanda;
-        while (fread(&comanda, sizeof(Comanda), 1, archivoDia) == 1) {
-            comandasSemanales.push_back(comanda);
-        }
-
-        if (ferror(archivoDia)) {
-            cout << "Error al leer " << nombreArchivo << ".\n";
-            fclose(archivoDia);
+        if (rename(resultado, auxiliar) != 0) {
+            cout << "No se pudo renombrar el resultado del apareo." << endl;
             return 1;
         }
-
-        fclose(archivoDia);
-        cout << "Leida la planilla " << nombreArchivo << ".\n";
     }
 
-    // Ordena todas las ventas por identificador de mozo.
-    // Las ventas del mismo mozo pueden quedar en cualquier orden entre si.
-    sort(comandasSemanales.begin(), comandasSemanales.end(),
-         [](const Comanda& a, const Comanda& b) {
-             return a.idMozo < b.idMozo;
-         });
-
-    char nombreSemanal[64];
-    snprintf(nombreSemanal, sizeof(nombreSemanal),
-             "comandas_semana_s%d-%02d.dat", numeroSemana, mes);
-
-    FILE* archivoSemanal = fopen(nombreSemanal, "wb");
-    if (archivoSemanal == NULL) {
-        cout << "Error: no se pudo crear " << nombreSemanal << ".\n";
+    // El auxiliar final ya contiene todos los registros ordenados por idMozo.
+    remove(nombreSalida);
+    if (rename(auxiliar, nombreSalida) != 0) {
+        cout << "No se pudo crear el archivo semanal." << endl;
         return 1;
     }
 
-    for (size_t i = 0; i < comandasSemanales.size(); ++i) {
-        if (fwrite(&comandasSemanales[i], sizeof(Comanda), 1,
-                   archivoSemanal) != 1) {
-            cout << "Error al escribir el archivo semanal.\n";
-            fclose(archivoSemanal);
-            return 1;
-        }
-    }
-
-    if (fclose(archivoSemanal) != 0) {
-        cout << "Error al cerrar el archivo semanal.\n";
-        return 1;
-    }
-
-    cout << "\nCierre semanal terminado correctamente.\n";
-    cout << "Archivo generado: " << nombreSemanal << "\n";
-    cout << "Planillas procesadas: " << cantidadDias << "\n";
-    cout << "Comandas guardadas: " << comandasSemanales.size() << "\n";
-
+    cout << "Cierre semanal generado correctamente: " << nombreSalida << endl;
     return 0;
 }
