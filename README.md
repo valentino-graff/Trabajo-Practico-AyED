@@ -10,7 +10,7 @@ Trabajo Práctico grupal de Algoritmos y Estructuras de Datos (UTN FRBA), unidad
 |---|---|
 | Valentino Graff | valentino-graff |
 | Aylen Cortez | AyluCortez |
-| Perseo Reak| Perseo |
+| Perseo Real| Perseothetruefrbr |
 | Santiago Isoldi | pocho1212 |
 
 ## Quién hizo cada parte
@@ -119,12 +119,10 @@ Además, utiliza archivos binarios (.dat) para almacenar la información de los 
 
 ### `cierre.cpp`
 
-El archivo cierre.cpp sirve para realizar el cierre semanal de las ventas del Buffet Albert Einstein.
-Primero, incluye las bibliotecas necesarias para trabajar con archivos, textos, vectores y ordenamientos. Después, define la estructura Comanda, que almacena el identificador del mozo, el código del producto, la cantidad vendida y la comisión.
-Luego, la función fechaValida() verifica que las fechas tengan el formato correcto y que el día y el mes estén dentro de los rangos permitidos.
-En la función principal main(), el programa solicita el número de semana, el mes y la cantidad de planillas diarias. Valida esos datos y pide las fechas de las planillas, evitando ingresar dos veces la misma fecha.
-Después, abre cada archivo diario, lee sus comandas y las guarda en un vector. Una vez reunidas todas, utiliza sort() para ordenarlas por identificador de mozo.
-Finalmente, crea un archivo binario semanal, guarda todas las comandas ordenadas y muestra un mensaje indicando que el cierre terminó correctamente, junto con la cantidad de planillas procesadas y comandas guardadas.
+Realiza el cierre semanal de las ventas del buffet. Solicita el número de semana, el mes y las fechas de los siete días que se van a procesar.
+abre las planillas diarias y combina sus registros mediante el método de apareo de archivos ordenados. Este procedimiento compara los registros de dos archivos a la vez, utilizando el identificador del mozo (idMozo) como criterio de ordenamiento. De esta manera, escribe primero la comanda que tiene el identificador menor y avanza en el archivo correspondiente. Cuando uno de los archivos llega al final, copia los registros restantes del otro. Para combinar todos los días, utiliza archivos auxiliares y repite el apareo hasta reunir todas las ventas, ya por ultimo genera el archivo binario semanal comandas_semana_sX-mm.dat, que contiene todas las comandas de la semana ordenadas por identificador de mozo.
+
+(nota: el corregido ya no lleva sort() ni vector, usa apareo en bucle como nos dice la catedra y tampoco carga los archivos a memoria)
 
 ### `resumen.cpp`
 
