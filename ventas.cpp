@@ -45,23 +45,38 @@ void encriptar(char clave[], char claveEncriptada[]) {
 
 
 //--------------------------------------------------
-// BUSCA UN MOZO POR ID (Secuencial)
+// BUSCA UN MOZO POR ID (Acceso Directo)
 //--------------------------------------------------
 int buscarMozo(int idBuscado, Mozo& mozo) {
+    if (idBuscado < 1) {
+        return 0;
+    }
+
     FILE* f = fopen("mozos.dat", "rb");
     if (f == NULL) {
         return 0;
     }
 
-    while (fread(&mozo, sizeof(Mozo), 1, f) == 1) {
-        if (mozo.idMozo == idBuscado) {
-            fclose(f);
-            return 1;
-        }
+    // Calculamos la cantidad total de mozos para validar el rango
+    fseek(f, 0, SEEK_END);
+    long tamano = ftell(f);
+    int cantidad = tamano / sizeof(Mozo);
+
+    if (idBuscado > cantidad) {
+        fclose(f);
+        return 0;
+    }
+
+    // Nos posicionamos directamente en el registro del mozo (ID - 1)
+    fseek(f, (long)(idBuscado - 1) * sizeof(Mozo), SEEK_SET);
+
+    if (fread(&mozo, sizeof(Mozo), 1, f) != 1) {
+        fclose(f);
+        return 0;
     }
 
     fclose(f);
-    return 0;
+    return 1;
 }
 
 
